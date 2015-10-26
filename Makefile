@@ -1,4 +1,4 @@
-all: test lib
+all: test lib json_pretty_print
 
 AR := ar
 
@@ -14,8 +14,10 @@ libjson11.o: json11.cpp json11.hpp
 test: json11.cpp json11.hpp test.cpp
 	$(CXX) -O -std=c++11 json11.cpp test.cpp -o test -fPIC -fno-rtti -fno-exceptions
 
+json_pretty_print: json_pretty_print.cpp
+	$(CXX) -O -std=c++11 json11.cpp json_pretty_print.cpp -o json_pretty_print -fPIC -fno-rtti -fno-exceptions
+
 clean:
-	if [ -e test ]; then rm test; fi
-	rm -fv *.a *.o
+	rm -fv *.a *.o test json_pretty_print
 
 .PHONY: clean
