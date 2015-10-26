@@ -41,11 +41,20 @@ using std::move;
  * Serialization
  */
 
-static void dump(std::nullptr_t, string &out) {
+static std::string dump_newline_const = "\n";
+
+static std::string gen_indent(const unsigned int indent) {
+	std::string tmp;
+
+	for (size_t i=0;i < indent;i++) tmp += '\t';
+	return tmp;
+}
+
+static void dump(std::nullptr_t, string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) {
     out += "null";
 }
 
-static void dump(double value, string &out) {
+static void dump(double value, string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) {
     if (std::isfinite(value)) {
         char buf[32];
         snprintf(buf, sizeof buf, "%.17g", value);
@@ -55,17 +64,17 @@ static void dump(double value, string &out) {
     }
 }
 
-static void dump(int value, string &out) {
+static void dump(int value, string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) {
     char buf[32];
     snprintf(buf, sizeof buf, "%d", value);
     out += buf;
 }
 
-static void dump(bool value, string &out) {
+static void dump(bool value, string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) {
     out += value ? "true" : "false";
 }
 
-static void dump(const string &value, string &out) {
+static void dump(const string &value, string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) {
     out += '"';
     for (size_t i = 0; i < value.length(); i++) {
         const char ch = value[i];
@@ -102,34 +111,38 @@ static void dump(const string &value, string &out) {
     out += '"';
 }
 
-static void dump(const Json::array &values, string &out) {
+static void dump(const Json::array &values, string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) {
     bool first = true;
     out += "[";
     for (const auto &value : values) {
         if (!first)
             out += ", ";
-        value.dump(out);
+        if (options & Json::pretty_print) out += dump_newline_const + gen_indent(indent+1);
+	value.dump(out, options, indent+1);
         first = false;
     }
+    if (!first && (options & Json::pretty_print)) out += dump_newline_const + gen_indent(indent);
     out += "]";
 }
 
-static void dump(const Json::object &values, string &out) {
+static void dump(const Json::object &values, string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) {
     bool first = true;
     out += "{";
     for (const auto &kv : values) {
         if (!first)
             out += ", ";
-        dump(kv.first, out);
+        if (options & Json::pretty_print) out += dump_newline_const + gen_indent(indent+1);
+        dump(kv.first, out, options & ~Json::pretty_print, 0U); /* don't pretty print or indent name */
         out += ": ";
-        kv.second.dump(out);
+        kv.second.dump(out, options, indent+1);
         first = false;
     }
+    if (!first && (options & Json::pretty_print)) out += dump_newline_const + gen_indent(indent);
     out += "}";
 }
 
-void Json::dump(string &out) const {
-    m_ptr->dump(out);
+void Json::dump(string &out,const infoconst_t options,const unsigned int indent) const {
+    m_ptr->dump(out,options,indent);
 }
 
 /* * * * * * * * * * * * * * * * * * * *
@@ -158,7 +171,7 @@ protected:
     }
 
     const T m_value;
-    void dump(string &out) const override { json11::dump(m_value, out); }
+    void dump(string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) const override { json11::dump(m_value, out, options, indent); }
 };
 
 class JsonDouble final : public Value<Json::NUMBER, double> {

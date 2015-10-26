@@ -107,8 +107,19 @@ int main(int argc, char **argv) {
         { "key1", "value1" },
         { "key2", false },
         { "key3", Json::array { 1, 2, 3 } },
+	{ "key4", Json::object {
+            { "subkey1", "value1" },
+            { "subkey2", true },
+            { "subkey3", int(12345) },
+	    { "subkey4", Json::object {
+                { "subsubkey1", "hello" },
+                { "subsubkey2", float(1.2345) }
+            } }
+	} }
     };
     std::string json_str = my_json.dump();
+    printf("%s\n", json_str.c_str());
+    json_str = my_json.dump(Json::pretty_print);
     printf("%s\n", json_str.c_str());
 
     class Point {

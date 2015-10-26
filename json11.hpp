@@ -67,6 +67,11 @@ public:
         NUL, NUMBER, BOOL, STRING, ARRAY, OBJECT
     };
 
+    // informational constants, OR them together for combination
+    typedef unsigned int infoconst_t;
+    static const infoconst_t info_none = 0U;
+    static const infoconst_t pretty_print = 1U << 0U;
+
     // Array and object typedefs
     typedef std::vector<Json> array;
     typedef std::map<std::string, Json> object;
@@ -137,10 +142,10 @@ public:
     const Json & operator[](const std::string &key) const;
 
     // Serialize.
-    void dump(std::string &out) const;
-    std::string dump() const {
+    void dump(std::string &out,const infoconst_t options=info_none,const unsigned int indent=0) const;
+    std::string dump(const infoconst_t options=info_none,const unsigned int indent=0) const {
         std::string out;
-        dump(out);
+        dump(out,options,indent);
         return out;
     }
 
@@ -185,7 +190,7 @@ protected:
     virtual Json::Type type() const = 0;
     virtual bool equals(const JsonValue * other) const = 0;
     virtual bool less(const JsonValue * other) const = 0;
-    virtual void dump(std::string &out) const = 0;
+    virtual void dump(std::string &out,const Json::infoconst_t options=Json::info_none,const unsigned int indent=0) const = 0;
     virtual double number_value() const;
     virtual int int_value() const;
     virtual bool bool_value() const;
