@@ -1,6 +1,12 @@
 all: test lib json_pretty_print
 
+DESTDIR :=
+PREFIX := /usr/local
+CXX := g++
 AR := ar
+
+# LIBDIRNAME should be lib for 32-bit, lib64 for 64-bit
+LIBDIRNAME := lib
 
 lib: libjson11.a
 	
@@ -16,6 +22,14 @@ test: json11.cpp json11.hpp test.cpp
 
 json_pretty_print: json_pretty_print.cpp
 	$(CXX) -O -std=c++11 json11.cpp json_pretty_print.cpp -o json_pretty_print -fPIC -fno-rtti -fno-exceptions
+
+install:
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	mkdir -p $(DESTDIR)$(PREFIX)/$(LIBDIRNAME)
+	mkdir -p $(DESTDIR)$(PREFIX)/include
+	cp -v json_pretty_print $(DESTDIR)$(PREFIX)/bin/
+	cp -v json11.hpp $(DESTDIR)$(PREFIX)/include/
+	cp -v libjson11.a $(DESTDIR)$(PREFIX)/$(LIBDIRNAME)/
 
 clean:
 	rm -fv *.a *.o test json_pretty_print
