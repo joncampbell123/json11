@@ -2,7 +2,6 @@ all: test lib json_pretty_print
 
 DESTDIR :=
 PREFIX := /usr/local
-CXX := g++
 AR := ar
 
 # LIBDIRNAME should be lib for 32-bit, lib64 for 64-bit
